@@ -31,6 +31,9 @@ yarn-error.log*
 .pnpm-debug.log*
 .dev-server.log
 .dev-server.err.log
+.npm-cache/
+.npm-global/
+.tmp/
 
 # env files (can opt-in for committing if needed)
 .env*
