@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CheckCircle2,
   ArrowLeft,
+  Info,
 } from 'lucide-react';
 import { AeroTrackIcon } from '../icons/AeroTrackLogo';
 
@@ -20,19 +21,19 @@ const DEMO_ACCOUNTS = [
     label: 'Administrator',
     email: 'admin@aerotrack.co.id',
     color: 'red',
-    description: 'Akses penuh · Kelola pengguna & sistem',
+    description: 'Akses penuh · Kelola pengguna dan sistem',
   },
   {
     label: 'Supervisor',
     email: 'budi.wibowo@aerotrack.co.id',
     color: 'amber',
-    description: 'Pantau operasional · Laporan & penerbangan',
+    description: 'Pantau operasional · Laporan dan penerbangan',
   },
   {
     label: 'Operator',
     email: 'ahmad.saputra@aerotrack.co.id',
     color: 'blue',
-    description: 'Tugas harian · Tracking & kargo',
+    description: 'Tugas harian · Tracking dan kargo',
   },
 ];
 
@@ -46,10 +47,13 @@ interface LoginFormSectionProps {
   rememberMe: boolean;
   setRememberMe: Dispatch<SetStateAction<boolean>>;
   error: string;
+  infoMessage: string;
   setError: (error: string) => void;
+  setInfoMessage: (message: string) => void;
   loading: boolean;
   onSubmit: (e: FormEvent) => void;
   onFillDemo: (demoEmail: string) => void;
+  onForgotPassword: () => void;
 }
 
 export function LoginFormSection({
@@ -62,20 +66,22 @@ export function LoginFormSection({
   rememberMe,
   setRememberMe,
   error,
+  infoMessage,
   setError,
+  setInfoMessage,
   loading,
   onSubmit,
   onFillDemo,
+  onForgotPassword,
 }: LoginFormSectionProps) {
   const router = useRouter();
-  return (
-    <div className="w-full lg:w-[42%] xl:w-[38%] flex items-center justify-center bg-white relative">
-      {/* Subtle top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600" />
 
-      {/* Mobile brand header */}
-      <div className="absolute top-6 left-6 flex items-center gap-2.5 lg:hidden">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+  return (
+    <div className="relative flex w-full items-center justify-center bg-white lg:w-[42%] xl:w-[38%]">
+      <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600" />
+
+      <div className="absolute left-6 top-6 flex items-center gap-2.5 lg:hidden">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
           <AeroTrackIcon size={16} className="text-white" />
         </div>
         <span className="text-slate-800" style={{ fontWeight: 700, fontSize: '0.9375rem' }}>
@@ -83,10 +89,9 @@ export function LoginFormSection({
         </span>
       </div>
 
-      {/* Back to landing link */}
       <button
         onClick={() => router.push('/landing')}
-        className="absolute top-6 right-6 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+        className="absolute right-6 top-6 flex items-center gap-1.5 text-slate-400 transition-colors hover:text-slate-600"
         style={{ fontSize: '0.8125rem' }}
       >
         <ArrowLeft size={14} />
@@ -99,49 +104,45 @@ export function LoginFormSection({
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="w-full max-w-sm px-8 py-10"
       >
-        {/* Heading */}
         <div className="mb-8">
           <h2 className="text-slate-900" style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
             Masuk ke Sistem
           </h2>
-          <p className="text-slate-500 mt-1" style={{ fontSize: '0.875rem' }}>
+          <p className="mt-1 text-slate-500" style={{ fontSize: '0.875rem' }}>
             Gunakan kredensial akun operator Anda
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
-
-          {/* Email */}
           <div>
             <label
               htmlFor="ep-email"
-              className="block text-slate-700 mb-1.5"
+              className="mb-1.5 block text-slate-700"
               style={{ fontSize: '0.8125rem', fontWeight: 500 }}
             >
               Alamat Email
             </label>
             <div className="relative">
-              <Mail
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-              />
+              <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="ep-email"
                 type="email"
                 autoComplete="email"
                 placeholder="nama@aerotrack.co.id"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 transition-all outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/12 focus:bg-white"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError('');
+                  setInfoMessage('');
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-3 focus:ring-blue-500/12"
                 style={{ fontSize: '0.875rem' }}
               />
             </div>
           </div>
 
-          {/* Password */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="mb-1.5 flex items-center justify-between">
               <label
                 htmlFor="ep-password"
                 className="text-slate-700"
@@ -151,31 +152,33 @@ export function LoginFormSection({
               </label>
               <button
                 type="button"
-                className="text-blue-600 hover:text-blue-700 transition-colors"
+                onClick={onForgotPassword}
+                className="text-blue-600 transition-colors hover:text-blue-700"
                 style={{ fontSize: '0.75rem', fontWeight: 500 }}
               >
                 Lupa password?
               </button>
             </div>
             <div className="relative">
-              <Lock
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-              />
+              <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="ep-password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 transition-all outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/12 focus:bg-white"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError('');
+                  setInfoMessage('');
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-3 focus:ring-blue-500/12"
                 style={{ fontSize: '0.875rem' }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -183,23 +186,20 @@ export function LoginFormSection({
             </div>
           </div>
 
-          {/* Remember me */}
           <div className="flex items-center gap-2.5 pt-0.5">
             <button
               type="button"
               role="checkbox"
               aria-checked={rememberMe}
               onClick={() => setRememberMe((v) => !v)}
-              className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                rememberMe
-                  ? 'bg-blue-600 border-blue-600'
-                  : 'border-slate-300 bg-white hover:border-blue-400'
+              className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border-2 transition-all ${
+                rememberMe ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white hover:border-blue-400'
               }`}
             >
               {rememberMe && <CheckCircle2 size={11} className="text-white" fill="white" />}
             </button>
             <span
-              className="text-slate-600 cursor-pointer select-none"
+              className="cursor-pointer select-none text-slate-600"
               style={{ fontSize: '0.8125rem' }}
               onClick={() => setRememberMe((v) => !v)}
             >
@@ -207,15 +207,29 @@ export function LoginFormSection({
             </span>
           </div>
 
-          {/* Error message */}
+          {infoMessage && !error && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-3"
+            >
+              <Info size={15} className="mt-0.5 flex-shrink-0 text-blue-600" />
+              <span className="text-blue-700" style={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>
+                {infoMessage}
+              </span>
+            </motion.div>
+          )}
+
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl bg-red-50 border border-red-200"
+              className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3"
             >
-              <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white" style={{ fontSize: '0.625rem', fontWeight: 700 }}>!</span>
+              <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-red-500">
+                <span className="text-white" style={{ fontSize: '0.625rem', fontWeight: 700 }}>
+                  !
+                </span>
               </div>
               <span className="text-red-700" style={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>
                 {error}
@@ -223,11 +237,10 @@ export function LoginFormSection({
             </motion.div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-blue-600/25 hover:shadow-blue-600/35 mt-1"
+            className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-xl bg-blue-600 py-3 text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 hover:shadow-blue-600/35 active:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
             style={{ fontSize: '0.9375rem', fontWeight: 600 }}
           >
             {loading ? (
@@ -235,7 +248,7 @@ export function LoginFormSection({
                 <motion.span
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
+                  className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
                 />
                 Memverifikasi...
               </>
@@ -248,17 +261,20 @@ export function LoginFormSection({
           </button>
         </form>
 
-        {/* Demo accounts */}
         <div className="mt-7">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex-1 h-px bg-slate-200" />
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
             <span className="text-slate-400" style={{ fontSize: '0.75rem', fontWeight: 500 }}>
               Akun Demo
             </span>
-            <div className="flex-1 h-px bg-slate-200" />
+            <div className="h-px flex-1 bg-slate-200" />
           </div>
-          <p className="text-slate-400 mb-2.5 text-center" style={{ fontSize: '0.75rem' }}>
-            Password semua akun: <code className="font-mono text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">petir2026</code>
+          <p className="mb-1 text-center text-slate-400" style={{ fontSize: '0.75rem' }}>
+            Password semua akun:{' '}
+            <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-600">petir2026</code>
+          </p>
+          <p className="mb-2.5 text-center text-slate-400" style={{ fontSize: '0.6875rem' }}>
+            Klik kartu akun untuk masuk otomatis sesuai role.
           </p>
           <div className="space-y-2">
             {DEMO_ACCOUNTS.map((acc) => (
@@ -266,36 +282,33 @@ export function LoginFormSection({
                 key={acc.email}
                 type="button"
                 onClick={() => onFillDemo(acc.email)}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-blue-300 transition-all group"
+                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 transition-all hover:border-blue-300 hover:bg-slate-100"
               >
                 <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg ${
                     acc.color === 'red'
                       ? 'bg-red-100 text-red-600'
                       : acc.color === 'amber'
-                        ? 'bg-amber-100 text-amber-600'
-                        : 'bg-blue-100 text-blue-600'
+                      ? 'bg-amber-100 text-amber-600'
+                      : 'bg-blue-100 text-blue-600'
                   }`}
                 >
-                  <span style={{ fontSize: '0.625rem', fontWeight: 700 }}>
-                    {acc.label[0]}
-                  </span>
+                  <span style={{ fontSize: '0.625rem', fontWeight: 700 }}>{acc.label[0]}</span>
                 </div>
-                <div className="flex-1 text-left min-w-0">
+                <div className="min-w-0 flex-1 text-left">
                   <p className="text-slate-700" style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
                     {acc.label}
                   </p>
-                  <p className="text-slate-400 truncate" style={{ fontSize: '0.6875rem' }}>
+                  <p className="truncate text-slate-400" style={{ fontSize: '0.6875rem' }}>
                     {acc.description}
                   </p>
                 </div>
-                <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
+                <ChevronRight size={14} className="flex-shrink-0 text-slate-300 transition-colors group-hover:text-blue-400" />
               </button>
             ))}
           </div>
         </div>
 
-        {/* Footer */}
         <p className="mt-8 text-center text-slate-400" style={{ fontSize: '0.6875rem' }}>
           © 2026 Aero Track Indonesia · v2.4.1
         </p>

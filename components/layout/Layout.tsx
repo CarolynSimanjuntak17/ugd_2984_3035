@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
-import { TopBar } from './TopBar';
+import { TopBar } from './Topbar';
 import { useApp } from '@/context/AppContext';
 
 export function Layout({ children }: { children: ReactNode }) {

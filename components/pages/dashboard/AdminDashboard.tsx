@@ -83,7 +83,7 @@ export function AdminDashboard() {
       color: 'violet',
       trend: `${users.length} total akun`,
       trendUp: true,
-      link: '/users',
+      link: '/users?status=active',
     },
     {
       label: 'Total Kargo Hari Ini',
@@ -93,7 +93,7 @@ export function AdminDashboard() {
       color: 'blue',
       trend: '+12% dari kemarin',
       trendUp: true,
-      link: '/tracking',
+      link: '/cargo',
     },
     {
       label: 'Kargo Tiba',
@@ -103,7 +103,7 @@ export function AdminDashboard() {
       color: 'green',
       trend: 'Selesai hari ini',
       trendUp: true,
-      link: null,
+      link: '/cargo?status=Arrived',
     },
     {
       label: 'Penerbangan Delay',
@@ -113,7 +113,7 @@ export function AdminDashboard() {
       color: 'amber',
       trend: 'Perlu perhatian',
       trendUp: false,
-      link: '/flights',
+      link: '/flights?status=delayed',
     },
   ];
 
@@ -229,7 +229,14 @@ export function AdminDashboard() {
             {(Object.entries(usersByRole) as [string, number][]).map(([role, count]) => {
               const meta = ROLE_META[role as 'admin' | 'supervisor' | 'operator'];
               return (
-                <div key={role} className="flex items-center gap-3">
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => router.push(`/users?role=${role}`)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-1 py-1 transition-colors ${
+                    isDark ? 'hover:bg-slate-700/40' : 'hover:bg-slate-50'
+                  }`}
+                >
                   <div className={`px-2 py-0.5 rounded-md border ${meta.bgClass} ${meta.borderClass}`}>
                     <span className={`${meta.textClass}`} style={{ fontSize: '0.6875rem', fontWeight: 600 }}>
                       {meta.label}
@@ -246,32 +253,47 @@ export function AdminDashboard() {
                   <span className={`${isDark ? 'text-slate-300' : 'text-slate-700'}`} style={{ fontSize: '0.8125rem', fontWeight: 600, minWidth: 24, textAlign: 'right' }}>
                     {count}
                   </span>
-                </div>
+                </button>
               );
             })}
           </div>
 
           {/* Active/Inactive */}
-          <div className={`p-3 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'} flex items-center justify-between mb-4`}>
+          <button
+            type="button"
+            onClick={() => router.push('/users?status=active')}
+            className={`mb-4 flex w-full items-center justify-between rounded-lg p-3 transition-colors ${isDark ? 'bg-slate-700/50 hover:bg-slate-700' : 'bg-slate-50 hover:bg-slate-100'}`}
+          >
             <div className="flex items-center gap-2">
               <CheckCircle2 size={14} className="text-green-500" />
               <span className={isDark ? 'text-slate-300' : 'text-slate-600'} style={{ fontSize: '0.8125rem' }}>Aktif</span>
             </div>
             <span className="text-green-600" style={{ fontWeight: 700, fontSize: '1rem' }}>{activeUsers}</span>
-          </div>
-          <div className={`p-3 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'} flex items-center justify-between`}>
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/users?status=inactive')}
+            className={`flex w-full items-center justify-between rounded-lg p-3 transition-colors ${isDark ? 'bg-slate-700/50 hover:bg-slate-700' : 'bg-slate-50 hover:bg-slate-100'}`}
+          >
             <div className="flex items-center gap-2">
               <XCircle size={14} className="text-red-400" />
               <span className={isDark ? 'text-slate-300' : 'text-slate-600'} style={{ fontSize: '0.8125rem' }}>Tidak Aktif</span>
             </div>
             <span className="text-red-500" style={{ fontWeight: 700, fontSize: '1rem' }}>{inactiveUsers}</span>
-          </div>
+          </button>
 
           {/* Recent users */}
           <div className="mt-4">
             <p className={`mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} style={{ fontSize: '0.75rem', fontWeight: 500 }}>Login Terakhir</p>
             {users.filter((u) => u.status === 'active').slice(0, 3).map((u) => (
-              <div key={u.id} className="flex items-center gap-2.5 py-1.5">
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => router.push(`/users?q=${encodeURIComponent(u.name)}`)}
+                className={`flex w-full items-center gap-2.5 rounded-lg py-1.5 text-left transition-colors ${
+                  isDark ? 'hover:bg-slate-700/40' : 'hover:bg-slate-50'
+                }`}
+              >
                 <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
                   <span className="text-white" style={{ fontSize: '0.5625rem', fontWeight: 700 }}>
                     {u.name.split(' ').map((w) => w[0]).slice(0, 2).join('')}
@@ -284,7 +306,7 @@ export function AdminDashboard() {
                 <span className={`px-1.5 py-0.5 rounded text-xs ${ROLE_META[u.role].bgClass} ${ROLE_META[u.role].textClass}`} style={{ fontSize: '0.625rem', fontWeight: 600 }}>
                   {u.role.charAt(0).toUpperCase()}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </motion.div>

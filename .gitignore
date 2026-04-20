@@ -31,6 +31,8 @@ yarn-error.log*
 .pnpm-debug.log*
 .dev-server.log
 .dev-server.err.log
+.edge-*/
+.edge-*.html
 .npm-cache/
 .npm-global/
 .tmp/

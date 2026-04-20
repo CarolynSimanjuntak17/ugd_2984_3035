@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Plus,
@@ -68,7 +68,9 @@ const STATUS_BADGE: Record<ShipmentStatus, { label: string; dot: string; cls: st
 export function CargoPage() {
   const { isDark, currentUser } = useApp();
   const { shipments, deleteShipment } = useCargo();
+  const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // RBAC
   const canCreate = hasFeature(currentUser.role, 'canUpdateCargoStatus') && currentUser.role !== 'supervisor';
@@ -77,9 +79,6 @@ export function CargoPage() {
   const canExport = hasFeature(currentUser.role, 'canExportData');
 
   // State
-  const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState<ShipmentStatus | 'all'>('all');
-  const [filterRoute, setFilterRoute] = useState('all');
   const [sortKey, setSortKey] = useState<SortKey>('awb');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [page, setPage] = useState(1);
@@ -90,6 +89,12 @@ export function CargoPage() {
   const [deletingShipment, setDeletingShipment] = useState<Shipment | null>(null);
   const [toast, setToast] = useState<string>('');
   const [toastType, setToastType] = useState<'success' | 'delete'>('success');
+
+  const validStatuses: Array<ShipmentStatus | 'all'> = ['all', 'Received', 'Sortation', 'Loaded to Aircraft', 'Departed', 'Arrived'];
+  const search = searchParams.get('q') ?? '';
+  const requestedStatus = (searchParams.get('status') as ShipmentStatus | 'all' | null) ?? 'all';
+  const filterStatus = validStatuses.includes(requestedStatus) ? requestedStatus : 'all';
+  const filterRoute = searchParams.get('route') ?? 'all';
 
   // Derived stats
   const stats = useMemo(() => {
@@ -168,13 +173,35 @@ export function CargoPage() {
     setPage(1);
   }
 
+  function updateQuery(next: { q?: string; status?: ShipmentStatus | 'all'; route?: string }) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (next.q !== undefined) {
+      if (next.q.trim()) params.set('q', next.q);
+      else params.delete('q');
+    }
+
+    if (next.status !== undefined) {
+      if (next.status !== 'all') params.set('status', next.status);
+      else params.delete('status');
+    }
+
+    if (next.route !== undefined) {
+      if (next.route !== 'all') params.set('route', next.route);
+      else params.delete('route');
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
   function handleSearchChange(v: string) {
-    setSearch(v);
+    updateQuery({ q: v });
     setPage(1);
   }
 
   function handleFilterStatus(v: ShipmentStatus | 'all') {
-    setFilterStatus(v);
+    updateQuery({ status: v });
     setPage(1);
   }
 
@@ -363,7 +390,10 @@ export function CargoPage() {
           <div className="relative">
             <select
               value={filterRoute}
-              onChange={(e) => { setFilterRoute(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                updateQuery({ route: e.target.value });
+                setPage(1);
+              }}
               className={`px-3 py-2.5 rounded-xl border appearance-none outline-none transition-colors cursor-pointer ${
                 isDark
                   ? 'bg-slate-700 border-slate-600 text-slate-200 focus:border-blue-500'
@@ -380,7 +410,10 @@ export function CargoPage() {
           {/* Reset */}
           {(search || filterStatus !== 'all' || filterRoute !== 'all') && (
             <button
-              onClick={() => { setSearch(''); setFilterStatus('all'); setFilterRoute('all'); setPage(1); }}
+              onClick={() => {
+                updateQuery({ q: '', status: 'all', route: 'all' });
+                setPage(1);
+              }}
               className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl border transition-colors ${
                 isDark ? 'border-slate-600 text-slate-400 hover:bg-slate-700' : 'border-slate-300 text-slate-500 hover:bg-slate-50'
               }`}

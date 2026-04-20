@@ -45,39 +45,43 @@ export function Sidebar() {
 
   return (
     <div
-      className={`${sidebarBg} flex flex-col h-screen flex-shrink-0 transition-all duration-300 ease-in-out border-r border-white/5 z-20`}
+      className={`${sidebarBg} z-20 flex h-screen flex-shrink-0 flex-col border-r border-white/5 transition-all duration-300 ease-in-out`}
       style={{ width: sidebarCollapsed ? 72 : 256 }}
     >
-      {/* Brand Header */}
-      <div className="flex items-center justify-between px-4 h-16 border-b border-white/10 flex-shrink-0">
-        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+      <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/10 px-4">
+        <Link href="/" className="flex min-w-0 items-center gap-3 overflow-hidden">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500 shadow-lg">
             <AeroTrackIcon size={16} className="text-white" />
           </div>
           <span
-            className="text-white whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
+            className="overflow-hidden whitespace-nowrap text-white transition-all duration-300 ease-in-out"
             style={{ maxWidth: sidebarCollapsed ? 0 : 160, opacity: sidebarCollapsed ? 0 : 1 }}
           >
             <span className="block truncate" style={{ fontWeight: 600, fontSize: '0.9375rem' }}>
               Aero Track
             </span>
           </span>
-        </div>
+        </Link>
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-slate-400 hover:text-white flex-shrink-0"
+          className="flex-shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
           title={sidebarCollapsed ? 'Perluas menu' : 'Kecilkan menu'}
         >
           {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto overflow-x-hidden">
+      <nav className="flex-1 space-y-0.5 overflow-x-hidden overflow-y-auto px-2 py-2">
         {!sidebarCollapsed && (
           <p
             className="px-3 pb-1 pt-1"
-            style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', color: '#475569', textTransform: 'uppercase' }}
+            style={{
+              fontSize: '0.625rem',
+              fontWeight: 600,
+              letterSpacing: '0.08em',
+              color: '#475569',
+              textTransform: 'uppercase',
+            }}
           >
             Menu Navigasi
           </p>
@@ -86,32 +90,30 @@ export function Sidebar() {
         {ALL_NAV_ITEMS.map((item) => {
           const isAllowed = allowedPaths.includes(item.path);
           const isActive =
-            isAllowed &&
-            (pathname === item.path ||
-              (item.path !== '/' && pathname.startsWith(item.path)));
+            pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
           const IconComponent = ICON_MAP[item.icon];
 
           if (!isAllowed) {
             return (
-              <div
+              <Link
                 key={item.path}
-                title={sidebarCollapsed ? `${item.label} (Tidak tersedia)` : undefined}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg opacity-25 cursor-not-allowed select-none"
+                href={item.path}
+                title={sidebarCollapsed ? `${item.label} (Akses dibatasi)` : undefined}
+                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
+                  isActive ? 'bg-white/8' : 'hover:bg-white/5'
+                } opacity-40`}
               >
                 <div className="relative flex-shrink-0">
-                  <IconComponent size={19} className="text-slate-500" />
-                  <Lock
-                    size={9}
-                    className="text-slate-500 absolute -bottom-0.5 -right-1"
-                  />
+                  <IconComponent size={19} className="text-slate-500 transition-colors group-hover:text-slate-300" />
+                  <Lock size={9} className="absolute -bottom-0.5 -right-1 text-slate-500 group-hover:text-slate-300" />
                 </div>
                 <span
-                  className="whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out text-slate-500"
+                  className="overflow-hidden whitespace-nowrap text-slate-500 transition-all duration-300 ease-in-out group-hover:text-slate-300"
                   style={{ maxWidth: sidebarCollapsed ? 0 : 160, opacity: sidebarCollapsed ? 0 : 1, fontSize: '0.875rem' }}
                 >
                   {item.label}
                 </span>
-              </div>
+              </Link>
             );
           }
 
@@ -120,7 +122,7 @@ export function Sidebar() {
               key={item.path}
               href={item.path}
               title={sidebarCollapsed ? item.label : undefined}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group relative ${
+              className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-150 ${
                 isActive
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-400 hover:bg-white/8 hover:text-slate-200'
@@ -128,7 +130,7 @@ export function Sidebar() {
             >
               <IconComponent size={19} className="flex-shrink-0" />
               <span
-                className="whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
+                className="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out"
                 style={{
                   maxWidth: sidebarCollapsed ? 0 : 160,
                   opacity: sidebarCollapsed ? 0 : 1,
@@ -138,24 +140,24 @@ export function Sidebar() {
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-blue-300 rounded-l" />
+                <div className="absolute right-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-l bg-blue-300" />
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Divider */}
-      <div className="border-t border-white/10 mx-4" />
+      <div className="mx-4 border-t border-white/10" />
 
-      {/* User Profile */}
-      <div className="p-3 flex-shrink-0">
-        <div
-          className="flex items-center gap-3 px-2 py-2.5 rounded-lg cursor-default overflow-hidden"
+      <div className="flex-shrink-0 p-3">
+        <button
+          type="button"
+          onClick={() => router.push('/settings')}
+          className="flex w-full items-center gap-3 overflow-hidden rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-white/5"
           title={sidebarCollapsed ? `${currentUser.name} · ${roleMeta.label}` : undefined}
         >
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full shadow"
             style={{ backgroundColor: roleMeta.color }}
           >
             <span className="text-white" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
@@ -163,27 +165,26 @@ export function Sidebar() {
             </span>
           </div>
           <div
-            className="overflow-hidden transition-all duration-300 ease-in-out min-w-0"
+            className="min-w-0 overflow-hidden transition-all duration-300 ease-in-out"
             style={{ maxWidth: sidebarCollapsed ? 0 : 160, opacity: sidebarCollapsed ? 0 : 1 }}
           >
-            <p className="text-white whitespace-nowrap truncate" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
+            <p className="truncate whitespace-nowrap text-white" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
               {currentUser.name}
             </p>
             <p
-              className="whitespace-nowrap truncate"
+              className="truncate whitespace-nowrap"
               style={{ fontSize: '0.6875rem', color: roleMeta.color, opacity: 0.8, fontWeight: 500 }}
             >
               {roleMeta.label} &bull; {currentUser.airport}
             </p>
           </div>
-        </div>
+        </button>
       </div>
 
-      {/* Logout */}
-      <div className="pb-3 px-2 flex-shrink-0">
+      <div className="flex-shrink-0 px-2 pb-3">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-slate-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
           title={sidebarCollapsed ? 'Keluar' : undefined}
         >
           <LogOut size={18} className="flex-shrink-0" />

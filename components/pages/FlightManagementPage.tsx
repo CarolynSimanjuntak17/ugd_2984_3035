@@ -1,6 +1,5 @@
 'use client';
-
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -59,8 +58,14 @@ const AIRLINES: Record<string, string> = {
 
 export function FlightManagementPage() {
   const { isDark } = useApp();
-  const [statusFilter, setStatusFilter] = useState<FlightStatus>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const validStatuses: FlightStatus[] = ['all', 'on-time', 'delayed', 'departed', 'cancelled'];
+  const requestedStatus = (searchParams.get('status') as FlightStatus | null) ?? 'all';
+  const statusFilter = validStatuses.includes(requestedStatus) ? requestedStatus : 'all';
+  const searchQuery = searchParams.get('q') ?? '';
 
   const cardBase = isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200';
 
@@ -94,6 +99,23 @@ export function FlightManagementPage() {
     { key: 'departed', label: 'Berangkat', count: counts.departed },
   ];
 
+  function updateQuery(next: { status?: FlightStatus; q?: string }) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (next.status !== undefined) {
+      if (next.status !== 'all') params.set('status', next.status);
+      else params.delete('status');
+    }
+
+    if (next.q !== undefined) {
+      if (next.q.trim()) params.set('q', next.q);
+      else params.delete('q');
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -109,7 +131,18 @@ export function FlightManagementPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
-            className={`rounded-xl border p-4 ${cardBase}`}
+            className={`cursor-pointer rounded-xl border p-4 transition-shadow hover:shadow-md ${cardBase}`}
+            onClick={() =>
+              router.push(
+                item.label === 'Total Penerbangan'
+                  ? '/flights'
+                  : item.label === 'On-Time'
+                  ? '/flights?status=on-time'
+                  : item.label === 'Delayed'
+                  ? '/flights?status=delayed'
+                  : '/flights?status=departed'
+              )
+            }
           >
             <div className="flex items-center gap-3">
               <item.icon size={20} className={item.color} />
@@ -156,7 +189,7 @@ export function FlightManagementPage() {
                 type="text"
                 placeholder="Cari nomor penerbangan..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => updateQuery({ q: e.target.value })}
                 className={`pl-9 pr-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                   isDark
                     ? 'bg-slate-700 border-slate-600 text-slate-200 placeholder-slate-500'
@@ -171,7 +204,7 @@ export function FlightManagementPage() {
             {filterTabs.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setStatusFilter(tab.key)}
+                onClick={() => updateQuery({ status: tab.key })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${
                   statusFilter === tab.key
                     ? 'bg-blue-600 border-blue-600 text-white'
